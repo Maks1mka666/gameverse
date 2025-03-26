@@ -8,13 +8,21 @@ async function searchMovie() {
     return;
   }
 
-  // Создание URL для запроса с возможностью пагинации
+  // Простой запрос к API
   const url = `${API_URL}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=ru-RU&page=1`;
 
   try {
     const response = await fetch(url);
     const data = await response.json();
-    displayResults(data.results);
+    console.log(data); // Логируем полученные данные
+
+    // Если мы получили фильмы, отображаем их
+    if (data.results && data.results.length > 0) {
+      displayResults(data.results);
+    } else {
+      console.log('Нет фильмов для данного запроса');
+      alert('Фильмы не найдены');
+    }
   } catch (error) {
     console.error('Ошибка при получении данных:', error);
   }
@@ -23,11 +31,6 @@ async function searchMovie() {
 function displayResults(movies) {
   const results = document.getElementById('results');
   results.innerHTML = ''; // Очищаем текущие результаты
-
-  if (movies.length === 0) {
-    results.innerHTML = '<p>Фильмы не найдены</p>';
-    return;
-  }
 
   movies.forEach(movie => {
     const posterUrl = movie.poster_path 
