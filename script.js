@@ -1,5 +1,5 @@
-const API_KEY = '6d1bac3b'; // Твой API-ключ OMDb
-const API_URL = 'https://www.omdbapi.com/';
+const API_KEY = 'a60b06e6455eec107914b73e816bc4f1'; 
+const API_URL = 'https://api.themoviedb.org/3/search/movie';
 
 async function searchMovie() {
   const query = document.getElementById('searchInput').value;
@@ -8,17 +8,13 @@ async function searchMovie() {
     return;
   }
 
-  const url = `${API_URL}?t=${encodeURIComponent(query)}&apikey=${API_KEY}&plot=short`;
+  // Создание URL для запроса с возможностью пагинации
+  const url = `${API_URL}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=ru-RU&page=1`;
 
   try {
     const response = await fetch(url);
     const data = await response.json();
-
-    if (data.Response === "False") {
-      displayResults([]);
-    } else {
-      displayResults([data]); // Превращаем объект в массив для универсального кода
-    }
+    displayResults(data.results);
   } catch (error) {
     console.error('Ошибка при получении данных:', error);
   }
@@ -26,7 +22,7 @@ async function searchMovie() {
 
 function displayResults(movies) {
   const results = document.getElementById('results');
-  results.innerHTML = '';
+  results.innerHTML = ''; // Очищаем текущие результаты
 
   if (movies.length === 0) {
     results.innerHTML = '<p>Фильмы не найдены</p>';
@@ -34,18 +30,17 @@ function displayResults(movies) {
   }
 
   movies.forEach(movie => {
-    const posterUrl = movie.Poster !== "N/A" 
-      ? movie.Poster 
+    const posterUrl = movie.poster_path 
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
       : 'https://via.placeholder.com/200x300?text=No+Image';
 
     const movieDiv = document.createElement('div');
     movieDiv.classList.add('movie');
     movieDiv.innerHTML = `
-      <img src="${posterUrl}" alt="${movie.Title}" />
-      <h3>${movie.Title} (${movie.Year})</h3>
-      <p>Рейтинг: ${movie.imdbRating}</p>
-      <p>Дата выхода: ${movie.Released}</p>
-      <p>${movie.Plot}</p>
+      <img src="${posterUrl}" alt="${movie.title}" />
+      <h3>${movie.title}</h3>
+      <p>Рейтинг: ${movie.vote_average}</p>
+      <p>${movie.release_date}</p>
     `;
     results.appendChild(movieDiv);
   });
